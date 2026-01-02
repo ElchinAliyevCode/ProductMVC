@@ -1,4 +1,5 @@
-﻿@model List<ProductGetVM>
+﻿@using ProductMVC.ViewModels.TagViewModels
+@model List<TagGetVM>
 
 <div class="container">
     <div class="row">
@@ -10,42 +11,26 @@
             <thead>
                 <tr>
                     <th scope="col">Id</th>
-                    <th scope="col">MainImage</th>
                     <th scope="col">Name</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Rating</th>
-                    <th scope="col">Category Name</th>
-                    <th scope="col">Brand Name</th>
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var product in Model)
+                @foreach (var tag in Model)
                 {
                     <tr>
-                        <th scope="row">@product.Id</th>
+                        <th scope="row">@tag.Id</th>
+                        <td>@tag.Name</td>
                         <td>
-                            <img src="~/assets/images/website-images/@product.MainImageUrl"
-                                 width="30" height="30" />
-                        </td>
-                        <td>@product.Name</td>
-                        <td>@product.Price</td>
-                        <td>@product.Rating</td>
-                        <td>@product.CategoryName</td>
-                        <td>@product.BrandName</td>
-                        <td>
-                            <a asp-area="Admin" asp-action="Update" asp-route-id="@product.Id"
+                            <a asp-area="admin" asp-action="update" asp-route-id="@tag.Id"
                                class="btn btn-warning">Update</a>
 
-                            <a asp-area="Admin" asp-action="Delete" asp-route-id="@product.Id"
+                            <a asp-area="admin" asp-action="delete" asp-route-id="@tag.Id"
                                class="btn btn-danger deleteBtn">Delete</a>
-
-                            <a asp-area="Admin" asp-action="Detail" asp-route-id="@product.Id"
-                               class="btn btn-primary ">Detail</a>
                         </td>
                     </tr>
                 }
-            </tbody>
+            </tbody>s
         </table>
     </div>
 </div>

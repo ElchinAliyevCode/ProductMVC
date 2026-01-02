@@ -20,7 +20,7 @@ public class ProductController : Controller
 
     public IActionResult Index()
     {
-        var vms = _context.Products.Include(x => x.Category).Select(x => new ProductGetVM()
+        var vms = _context.Products.Include(x => x.Category).Include(x=>x.Brand).Select(x => new ProductGetVM()
         {
             Id = x.Id,
             Name = x.Name,
@@ -28,6 +28,7 @@ public class ProductController : Controller
             Price = x.Price,
             Rating = x.Rating,
             CategoryName = x.Category.Name,
+            BrandName = x.Brand.Name,
             MainImageUrl = x.MainImageUrl,
             HoverImageUrl = x.HoverImageUrl,
             SKU = x.SKU,
@@ -89,6 +90,14 @@ public class ProductController : Controller
             return View(vm);
         }
 
+        var isExistBrand=_context.Brands.Any(x=>x.Id==vm.BrandId);
+        if (!isExistBrand)
+        {
+            SendItemsWithViewBag();
+            ModelState.AddModelError("", "This brand doesnot exist!");
+            return View(vm);
+        }
+
         foreach (var tagId in vm.TagIds)
         {
             var isExistTag = _context.Tags.Any(x => x.Id == tagId);
@@ -111,6 +120,7 @@ public class ProductController : Controller
             Description = vm.Description,
             SKU = vm.SKU,
             CategoryId = vm.CategoryId,
+            BrandId = vm.BrandId,
             Price = vm.Price,
             Rating = vm.Rating,
             MainImageUrl = mainImageName,
@@ -306,6 +316,7 @@ public class ProductController : Controller
             Price = x.Price,
             Rating = x.Rating,
             CategoryName = x.Category.Name,
+            BrandName = x.Brand.Name,
             MainImageUrl = x.MainImageUrl,
             HoverImageUrl = x.HoverImageUrl,
             SKU = x.SKU,
@@ -327,5 +338,8 @@ public class ProductController : Controller
 
         var tags = _context.Tags.ToList();
         ViewBag.Tags = tags;
+
+        var brands= _context.Brands.ToList();
+        ViewBag.Brands = brands;
     }
 }

@@ -1,4 +1,5 @@
-﻿@model CategoryUpdateVM
+﻿@using ProductMVC.ViewModels.BrandViewModel
+@model BrandCreateVM
 
 <div class="container">
     <div class="row">
@@ -12,7 +13,7 @@
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
-            <a asp-area="Admin" asp-controller="Category" asp-action="Update" class="btn btn-secondary mt-3">Cancel</a>
+            <a asp-area="Admin" asp-controller="Brand" asp-action="Create" class="btn btn-secondary mt-3">Cancel</a>
 
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
         </form>

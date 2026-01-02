@@ -11,6 +11,7 @@ public class ProductGetVM
     public string? SKU { get; set; }
     public int Rating { get; set; }
     public string CategoryName { get; set; }
+    public string BrandName { get; set; }
     public string MainImageUrl { get; set; }
     public string HoverImageUrl { get; set; }
     public List<string> TagNames { get; set; }
