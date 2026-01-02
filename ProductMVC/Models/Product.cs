@@ -20,4 +20,6 @@ public class Product
     public string MainImageUrl { get; set; }
     [Required]
     public string HoverImageUrl { get; set; }
+    public ICollection<ProductTag> ProductTags { get; set; } = [];
+
 }

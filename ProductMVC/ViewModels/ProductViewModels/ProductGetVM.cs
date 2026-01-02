@@ -13,4 +13,5 @@ public class ProductGetVM
     public string CategoryName { get; set; }
     public string MainImageUrl { get; set; }
     public string HoverImageUrl { get; set; }
+    public List<string> TagNames { get; set; }
 }

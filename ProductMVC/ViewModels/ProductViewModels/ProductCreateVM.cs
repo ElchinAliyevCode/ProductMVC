@@ -19,4 +19,5 @@ public class ProductCreateVM
     public IFormFile MainImage { get; set; }
     [Required]
     public IFormFile HoverImage { get; set; }
+    public List<int> TagIds { get; set; }
 }

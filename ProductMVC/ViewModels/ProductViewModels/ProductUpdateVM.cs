@@ -17,4 +17,5 @@ public class ProductUpdateVM
     public int CategoryId { get; set; }
     public IFormFile? MainImage { get; set; }
     public IFormFile? HoverImage { get; set; }
+    public List<int> TagIds { get; set; }
 }

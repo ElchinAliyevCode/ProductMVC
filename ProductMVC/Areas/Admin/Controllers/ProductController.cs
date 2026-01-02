@@ -39,7 +39,7 @@ public class ProductController : Controller
     [HttpGet]
     public IActionResult Create()
     {
-        SendCategoriesWithViewBag();
+        SendItemsWithViewBag();
         return View();
     }
 
@@ -48,35 +48,35 @@ public class ProductController : Controller
     {
         if (!ModelState.IsValid)
         {
-            SendCategoriesWithViewBag();
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
+            SendItemsWithViewBag();
             return View(vm);
         }
 
         if (!vm.MainImage.CheckType("image"))
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("MainImage", "Please add only image!");
             return View(vm);
         }
 
         if (!vm.MainImage.CheckSize(2))
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("MainImage", "Maximum 2 mb!");
             return View(vm);
         }
 
         if (!vm.HoverImage.CheckType("image"))
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("HoverImage", "Please add only image!");
             return View(vm);
         }
 
         if (!vm.HoverImage.CheckSize(2))
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("HoverImage", "Maximum 2 mb!");
             return View(vm);
         }
@@ -84,9 +84,20 @@ public class ProductController : Controller
         var isExistCategory = _context.Categories.Any(x => x.Id == vm.CategoryId);
         if (!isExistCategory)
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("", "This category doesnot exist!");
             return View(vm);
+        }
+
+        foreach (var tagId in vm.TagIds)
+        {
+            var isExistTag = _context.Tags.Any(x => x.Id == tagId);
+            if (!isExistTag)
+            {
+                SendItemsWithViewBag();
+                ModelState.AddModelError("", "This tag doesnot exist!");
+                return View(vm);
+            }
         }
 
         string folderPath = Path.Combine(_environment.WebRootPath, "assets", "images", "website-images");
@@ -104,7 +115,18 @@ public class ProductController : Controller
             Rating = vm.Rating,
             MainImageUrl = mainImageName,
             HoverImageUrl = hoverImageName,
+            ProductTags = []
         };
+
+        foreach (var tagId in vm.TagIds)
+        {
+            ProductTag productTag = new ProductTag()
+            {
+                TagId = tagId,
+                Product = newProduct
+            };
+            newProduct.ProductTags.Add(productTag);
+        }
 
         _context.Products.Add(newProduct);
         _context.SaveChanges();
@@ -144,13 +166,13 @@ public class ProductController : Controller
     [HttpGet]
     public IActionResult Update(int id)
     {
-        var product = _context.Products.Find(id);
+        var product = _context.Products.Include(x=>x.ProductTags).FirstOrDefault(x=>x.Id==id);
 
         if (product == null)
         {
             return NotFound();
         }
-        SendCategoriesWithViewBag();
+        SendItemsWithViewBag();
         ProductUpdateVM vm = new ProductUpdateVM()
         {
             Id = product.Id,
@@ -159,6 +181,7 @@ public class ProductController : Controller
             CategoryId = product.CategoryId,
             Price = product.Price,
             SKU = product.SKU,
+            TagIds=product.ProductTags.Select(t => t.TagId).ToList()
         };
         return View(vm);
     }
@@ -168,39 +191,39 @@ public class ProductController : Controller
     {
         if (!ModelState.IsValid)
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             return View(vm);
         }
 
         if (!vm.MainImage?.CheckType("image") ?? false)
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("MainImage", "Please add only image!");
             return View(vm);
         }
 
         if (vm.MainImage?.CheckSize(2) ?? false)
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("MainImage", "Maximum 2 mb!");
             return View(vm);
         }
 
         if (!vm.HoverImage?.CheckType("image") ?? false)
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("HoverImage", "Please add only image!");
             return View(vm);
         }
 
         if (vm.HoverImage?.CheckSize(2) ?? false)
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("HoverImage", "Maximum 2 mb!");
             return View(vm);
         }
 
-        var existProduct = _context.Products.Find(vm.Id);
+        var existProduct = _context.Products.Include(x=>x.ProductTags).FirstOrDefault(x=>x.Id==vm.Id);
 
         if (existProduct is null)
         {
@@ -211,10 +234,22 @@ public class ProductController : Controller
 
         if (!isExistCategory)
         {
-            SendCategoriesWithViewBag();
+            SendItemsWithViewBag();
             ModelState.AddModelError("CategoryId", "Category not found!");
             return View(vm);
         }
+
+        foreach (var tagId in vm.TagIds)
+        {
+            var isExistTag = _context.Tags.Any(x => x.Id == tagId);
+            if (!isExistTag)
+            {
+                SendItemsWithViewBag();
+                ModelState.AddModelError("", "This tag doesnot exist!");
+                return View(vm);
+            }
+        }
+
         existProduct.Name = vm.Name;
         existProduct.Description = vm.Description;
         existProduct.Price = vm.Price;
@@ -243,17 +278,54 @@ public class ProductController : Controller
             existProduct.HoverImageUrl = newHoverImageName;
         }
 
+        existProduct.ProductTags = [];
+
+        foreach (var tagId in vm.TagIds)
+        {
+            ProductTag productTag = new ProductTag()
+            {
+                TagId = tagId,
+                ProductId=existProduct.Id
+            };
+            existProduct.ProductTags.Add(productTag);
+        }
+
         _context.Update(existProduct);
         _context.SaveChanges();
         return RedirectToAction(nameof(Index));
 
     }
 
+    public IActionResult Detail(int id)
+    {
+        var product = _context.Products.Select(x => new ProductGetVM()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Description = x.Description,
+            Price = x.Price,
+            Rating = x.Rating,
+            CategoryName = x.Category.Name,
+            MainImageUrl = x.MainImageUrl,
+            HoverImageUrl = x.HoverImageUrl,
+            SKU = x.SKU,
+            TagNames = x.ProductTags.Select(x => x.Tag.Name).ToList()
+        }).FirstOrDefault(p => p.Id == id);
 
+        if (product == null)
+        {
+            return NotFound();
+        }
 
-    private void SendCategoriesWithViewBag()
+        return View(product);
+    }
+
+    private void SendItemsWithViewBag()
     {
         var categories = _context.Categories.ToList();
         ViewBag.Categories = categories;
+
+        var tags = _context.Tags.ToList();
+        ViewBag.Tags = tags;
     }
 }
