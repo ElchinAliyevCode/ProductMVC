@@ -21,6 +21,7 @@ public class Product
     [Required]
     public string HoverImageUrl { get; set; }
     public ICollection<ProductTag> ProductTags { get; set; } = [];
+    public ICollection<ProductImage> ProductImages { get; set; } = [];
     public Brand Brand { get; set; }
     public int BrandId { get; set; }
 

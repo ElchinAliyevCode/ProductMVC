@@ -82,6 +82,23 @@ public class ProductController : Controller
             return View(vm);
         }
 
+        foreach (var image in vm.Images)
+        {
+            if (!image.CheckType("image"))
+            {
+                SendItemsWithViewBag();
+                ModelState.AddModelError("Images", "Please add only image!");
+                return View(vm);
+            }
+
+            if (!image.CheckSize(2))
+            {
+                SendItemsWithViewBag();
+                ModelState.AddModelError("Images", "Maximum 2 mb!");
+                return View(vm);
+            }
+        }
+
         var isExistCategory = _context.Categories.Any(x => x.Id == vm.CategoryId);
         if (!isExistCategory)
         {
@@ -114,6 +131,7 @@ public class ProductController : Controller
         string mainImageName = vm.MainImage.SaveFile(folderPath);
         string hoverImageName = vm.HoverImage.SaveFile(folderPath);
 
+
         Product newProduct = new Product()
         {
             Name = vm.Name,
@@ -125,8 +143,21 @@ public class ProductController : Controller
             Rating = vm.Rating,
             MainImageUrl = mainImageName,
             HoverImageUrl = hoverImageName,
-            ProductTags = []
+            ProductTags = [],
+            ProductImages = [],
         };
+
+        foreach (var image in vm.Images)
+        {
+            string imageName = image.SaveFile(folderPath);
+
+            ProductImage productImage = new ProductImage()
+            {
+                ImageUrl=imageName,
+                Product=newProduct,
+            };
+            newProduct.ProductImages.Add(productImage);
+        }
 
         foreach (var tagId in vm.TagIds)
         {
@@ -147,7 +178,7 @@ public class ProductController : Controller
 
     public IActionResult Delete(int id)
     {
-        var product = _context.Products.Find(id);
+        var product = _context.Products.Include(x=>x.ProductImages).FirstOrDefault(x=>x.Id==id);
         if (product == null)
         {
             return NotFound();
@@ -168,6 +199,15 @@ public class ProductController : Controller
             System.IO.File.Delete(Path.Combine(folderPath, product.HoverImageUrl));
         }
 
+        foreach (var image in product.ProductImages)
+        {
+            if (System.IO.File.Exists(Path.Combine(folderPath, image.ImageUrl)))
+            {
+                System.IO.File.Delete(Path.Combine(folderPath, image.ImageUrl));
+            }
+        }
+
+
         return RedirectToAction(nameof(Index));
 
 
@@ -176,7 +216,7 @@ public class ProductController : Controller
     [HttpGet]
     public IActionResult Update(int id)
     {
-        var product = _context.Products.Include(x=>x.ProductTags).FirstOrDefault(x=>x.Id==id);
+        var product = _context.Products.Include(x=>x.ProductTags).Include(x=>x.ProductImages).FirstOrDefault(x=>x.Id==id);
 
         if (product == null)
         {
@@ -191,7 +231,12 @@ public class ProductController : Controller
             CategoryId = product.CategoryId,
             Price = product.Price,
             SKU = product.SKU,
-            TagIds=product.ProductTags.Select(t => t.TagId).ToList()
+            Rating = product.Rating,
+            TagIds=product.ProductTags.Select(t => t.TagId).ToList(),
+            HoverImagePath = product.HoverImageUrl,
+            MainImagePath = product.MainImageUrl,
+            ImageUrls=product.ProductImages.Select(x => x.ImageUrl).ToList(),
+            ImageIds=product.ProductImages.Select(x=>x.Id).ToList(),
         };
         return View(vm);
     }
@@ -233,7 +278,24 @@ public class ProductController : Controller
             return View(vm);
         }
 
-        var existProduct = _context.Products.Include(x=>x.ProductTags).FirstOrDefault(x=>x.Id==vm.Id);
+        foreach (var image in vm.Images)
+        {
+            if (!image.CheckType("image"))
+            {
+                SendItemsWithViewBag();
+                ModelState.AddModelError("Images", "Please add only image!");
+                return View(vm);
+            }
+
+            if (!image.CheckSize(2))
+            {
+                SendItemsWithViewBag();
+                ModelState.AddModelError("Images", "Maximum 2 mb!");
+                return View(vm);
+            }
+        }
+
+        var existProduct = _context.Products.Include(x=>x.ProductTags).Include(x=>x.ProductImages).FirstOrDefault(x=>x.Id==vm.Id);
 
         if (existProduct is null)
         {
@@ -300,6 +362,31 @@ public class ProductController : Controller
             existProduct.ProductTags.Add(productTag);
         }
 
+        foreach (var productImage in existProduct.ProductImages.ToList())
+        {
+            var isExistImage = vm.ImageIds.Any(x => x == productImage.Id);
+            if (isExistImage == false)
+            {
+                existProduct.ProductImages.Remove(productImage);
+                if (System.IO.File.Exists(Path.Combine(folderPath, productImage.ImageUrl)))
+                {
+                    System.IO.File.Delete(Path.Combine(folderPath, productImage.ImageUrl));
+                }
+            }
+        }
+
+        foreach (var image in vm.Images)
+        {
+            string imageName = image.SaveFile(folderPath);
+
+            ProductImage productImage = new ProductImage()
+            {
+                ImageUrl = imageName,
+                ProductId = existProduct.Id,
+            };
+            existProduct.ProductImages.Add(productImage);
+        }
+
         _context.Update(existProduct);
         _context.SaveChanges();
         return RedirectToAction(nameof(Index));
@@ -320,6 +407,7 @@ public class ProductController : Controller
             MainImageUrl = x.MainImageUrl,
             HoverImageUrl = x.HoverImageUrl,
             SKU = x.SKU,
+            ImageUrls=x.ProductImages.Select(x => x.ImageUrl).ToList(),
             TagNames = x.ProductTags.Select(x => x.Tag.Name).ToList()
         }).FirstOrDefault(p => p.Id == id);
 

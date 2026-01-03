@@ -15,4 +15,5 @@ public class ProductGetVM
     public string MainImageUrl { get; set; }
     public string HoverImageUrl { get; set; }
     public List<string> TagNames { get; set; }
+    public List<string> ImageUrls { get; set; }
 }

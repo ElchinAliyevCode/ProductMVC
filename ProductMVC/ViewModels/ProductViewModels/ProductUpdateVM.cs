@@ -18,5 +18,10 @@ public class ProductUpdateVM
     public int BrandId { get; set; }
     public IFormFile? MainImage { get; set; }
     public IFormFile? HoverImage { get; set; }
+    public string? MainImagePath { get; set; }
+    public string? HoverImagePath { get; set; }
     public List<int> TagIds { get; set; }
+    public List<IFormFile>? Images { get; set; } = [];
+    public List<string>? ImageUrls { get; set; } = [];
+    public List<int>? ImageIds { get; set; }= [];
 }

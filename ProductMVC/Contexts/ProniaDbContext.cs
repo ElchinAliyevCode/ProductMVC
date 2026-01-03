@@ -13,5 +13,6 @@ public class ProniaDbContext:DbContext
     public DbSet<Tag> Tags { get; set; }
     public DbSet<ProductTag> ProductTags { get; set; }
     public DbSet<Brand> Brands { get; set; }
+    public DbSet<ProductImage> ProductImages { get; set; }
 
 }

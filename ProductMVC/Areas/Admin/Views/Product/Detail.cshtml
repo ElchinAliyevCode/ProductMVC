@@ -14,5 +14,13 @@
             {
                 <span>@tagName  </span>
             }</p>
+
+        <p class="card-text">
+            Images: @foreach (var imageUrl in Model.ImageUrls)
+            {
+                <img class="card-img-top" src="~/assets/images/website-images/@imageUrl" alt="Card image cap">
+
+            }
+        </p>
     </div>
 </div>

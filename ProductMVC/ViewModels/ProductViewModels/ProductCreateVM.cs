@@ -21,4 +21,5 @@ public class ProductCreateVM
     [Required]
     public IFormFile HoverImage { get; set; }
     public List<int> TagIds { get; set; }
+    public List<IFormFile> Images { get; set; } = [];
 }
