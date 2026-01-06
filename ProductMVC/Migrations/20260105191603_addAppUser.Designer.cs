@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProductMVC.Contexts;
 
@@ -11,9 +12,11 @@ using ProductMVC.Contexts;
 namespace ProductMVC.Migrations
 {
     [DbContext(typeof(ProniaDbContext))]
-    partial class ProniaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260105191603_addAppUser")]
+    partial class addAppUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProductMVC.Models;
 
 namespace ProductMVC.Contexts;
 
-public class ProniaDbContext:DbContext
+public class ProniaDbContext:IdentityDbContext<AppUser>
 {
     public ProniaDbContext(DbContextOptions options):base(options)
     {

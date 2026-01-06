@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProductMVC.Contexts;
+using ProductMVC.Models;
 
 namespace ProductMVC
 {
@@ -15,6 +17,14 @@ namespace ProductMVC
             {
                 opt.UseSqlServer(conn);
             });
+
+            builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
+            {
+                opt.Password.RequiredLength = 6;
+                opt.Password.RequireNonAlphanumeric = true;
+                opt.Password.RequireUppercase = true;
+                opt.User.RequireUniqueEmail = true;
+            }).AddEntityFrameworkStores<ProniaDbContext>().AddDefaultTokenProviders();
 
             builder.Services.AddControllersWithViews();
             var app = builder.Build();
