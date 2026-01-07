@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProductMVC.Contexts;
 using ProductMVC.ViewModels.ProductViewModels;
 
@@ -13,6 +14,7 @@ public class ShopController : Controller
         _context = context;
     }
 
+    [Authorize]
     public IActionResult Index()
     {
         var products=_context.Products.Select(p=>new ProductGetVM()

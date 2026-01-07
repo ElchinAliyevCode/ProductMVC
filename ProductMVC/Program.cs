@@ -26,11 +26,18 @@ namespace ProductMVC
                 opt.User.RequireUniqueEmail = true;
             }).AddEntityFrameworkStores<ProniaDbContext>().AddDefaultTokenProviders();
 
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Auth/Login";
+            });
+
             builder.Services.AddControllersWithViews();
             var app = builder.Build();
 
             app.UseStaticFiles();
+            app.UseRouting();
 
+            app.UseAuthorization();
 
             app.MapControllerRoute(
               name: "areas",
