@@ -19,5 +19,6 @@ public class Product
     public ICollection<ProductImage> ProductImages { get; set; } = [];
     public Brand Brand { get; set; }
     public int BrandId { get; set; }
+    public ICollection<BasketItem> BasketItems { get; set; } = [];
 
 }

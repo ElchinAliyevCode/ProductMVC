@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ProductMVC.Abstraction;
 using ProductMVC.Contexts;
 using ProductMVC.Models;
+using ProductMVC.Services;
 
 namespace ProductMVC
 {
@@ -11,6 +13,7 @@ namespace ProductMVC
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddScoped<IBasketService, BasketService>();
             var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
             builder.Services.AddDbContext<ProniaDbContext>(opt =>

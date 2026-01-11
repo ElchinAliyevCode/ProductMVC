@@ -1,0 +1,53 @@
+﻿@model List<BasketItem>
+
+<!-- Begin Main Content Area -->
+<main class="main-content">
+
+    <partial name="_TitlePartialView" model='"Basket"'></partial>
+
+
+
+    <div class="cart-area section-space-y-axis-100">
+        <div class="container basketArea">
+            <partial name="_BasketPartialView" model="@Model"></partial>
+        </div>
+    </div>
+</main>
+
+<script>
+    function RenderBasket() {
+        const increaseBtns = document.querySelectorAll(".increaseBtn");
+        const decreaseBtns = document.querySelectorAll(".decreaseBtn");
+        const basketArea = document.querySelector(".basketArea");
+
+        increaseBtns.forEach(btn => {
+            btn.addEventListener("click", async () => {
+                let productId = btn.getAttribute("data-productId");
+                let response = await fetch(`/Basket/IncreaseBasketItemCount?productId=${productId}`);
+
+                if (response.ok) {
+                    let result = await response.text();
+                    basketArea.innerHTML = result;
+                    RenderBasket();
+                }
+            });
+        });
+
+        decreaseBtns.forEach(btn => {
+            btn.addEventListener("click", async () => {
+                let productId = btn.getAttribute("data-productId");
+                let response = await fetch(`/Basket/DecreaseBasketItemCount?productId=${productId}`);
+
+                if (response.ok) {
+                    let result = await response.text();
+                    basketArea.innerHTML = result;
+                    RenderBasket();
+                }
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", RenderBasket);
+</script>
+
+<!-- Main Content Area End Here -->
