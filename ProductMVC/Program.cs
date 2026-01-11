@@ -16,6 +16,8 @@ namespace ProductMVC
             builder.Services.AddScoped<IBasketService, BasketService>();
             var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
             builder.Services.AddDbContext<ProniaDbContext>(opt =>
             {
                 opt.UseSqlServer(conn);
